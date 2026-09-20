@@ -97,8 +97,16 @@ namespace DreamGames.Match.Grid
                 Sprite hint = null;
                 if (eligible)
                 {
-                    hint = group.Count >= 6 ? prefabs.tntHintSprite
-                         : (Random.value < 0.5f ? prefabs.hRocketHintSprite : prefabs.vRocketHintSprite);
+                    if (group.Count >= 6)
+                    {
+                        hint = prefabs.tntHintSprite;
+                    }
+                    else
+                    {
+                        hint = DetermineRocketOrientation(group) == RocketOrientation.Horizontal
+                            ? prefabs.hRocketHintSprite
+                            : prefabs.vRocketHintSprite;
+                    }
                 }
 
                 foreach (var cube in group)
@@ -107,6 +115,27 @@ namespace DreamGames.Match.Grid
                     handled.Add(new Vector2Int(cube.Row, cube.Col));
                 }
             }
+        }
+
+        /// <summary>
+        /// Deterministic orientation for the rocket a 4-5 cube group would create, based on the
+        /// group's bounding box (wider than tall -> horizontal, taller than wide -> vertical).
+        /// Used by both the hint icon and the actual spawn so they always agree.
+        /// </summary>
+        public static RocketOrientation DetermineRocketOrientation(List<Cube> group)
+        {
+            int minRow = int.MaxValue, maxRow = int.MinValue, minCol = int.MaxValue, maxCol = int.MinValue;
+            foreach (var cube in group)
+            {
+                minRow = Mathf.Min(minRow, cube.Row);
+                maxRow = Mathf.Max(maxRow, cube.Row);
+                minCol = Mathf.Min(minCol, cube.Col);
+                maxCol = Mathf.Max(maxCol, cube.Col);
+            }
+
+            int width = maxCol - minCol;
+            int height = maxRow - minRow;
+            return width >= height ? RocketOrientation.Horizontal : RocketOrientation.Vertical;
         }
     }
 }

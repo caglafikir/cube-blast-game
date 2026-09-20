@@ -74,6 +74,9 @@ namespace DreamGames.Match.Grid
 
             if (createsSpecial)
             {
+                // Determined before the collapse animation destroys these Cube instances.
+                RocketOrientation orientation = MatchFinder.DetermineRocketOrientation(group);
+
                 yield return StartCoroutine(CollapseGroupRoutine(group.ConvertAll(g => (GridItem)g), spawnCell));
 
                 if (group.Count >= 6)
@@ -82,9 +85,6 @@ namespace DreamGames.Match.Grid
                 }
                 else
                 {
-                    RocketOrientation orientation = UnityEngine.Random.value < 0.5f
-                        ? RocketOrientation.Horizontal
-                        : RocketOrientation.Vertical;
                     SpawnRocket(spawnCell, orientation);
                 }
             }
